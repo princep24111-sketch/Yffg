@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amshi Cafe | Premium QR Ordering</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#050608">
+    <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1541167760496-1628856ab772?w=180&auto=format&fit=crop&q=80">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QRurious Offline QR Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            DEFAULT: '#C5A880',
+                            light: '#E5D5C0',
+                            dark: '#9A7D56',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --dark-bg: #050608;
+            --dark-card: #0F1115;
+            --dark-accent: #181B22;
+        }
+        .bg-dark-bg { background-color: var(--dark-bg); }
+        .bg-dark-card { background-color: var(--dark-card); }
+        .bg-dark-accent { background-color: var(--dark-accent); }
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050608;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #C5A880;
+            border-radius: 3px;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Ken Burns Cinematic Parallax */
+        @keyframes kenburns {
+            0% { transform: scale(1.0); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1.0); }
+        }
+        .animate-kenburns {
+            animation: kenburns 35s ease-in-out infinite;
+        }
+        
+        /* Floating particles */
+        @keyframes float-particle {
+            0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(-10vh) translateX(80px) rotate(360deg); opacity: 0; }
+        }
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #C5A880;
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 8px #C5A880, 0 0 12px #E5D5C0;
+            animation: float-particle linear infinite;
+        }
+
+        /* Gold Gilded Metallic Typography */
+        .text-3d-gold {
+            font-family: 'Playfair Display', serif;
+            text-shadow: 
+                0 1px 0 #9A7D56,
+                0 2px 0 #8c714e,
+                0 3px 0 #7e6546,
+                0 0 5px rgba(0,0,0,0.5),
+                0 10px 10px rgba(0,0,0,0.3),
+                0 0 25px rgba(197,168,128,0.35);
+        }
+
+        .card-3d {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.5s;
+        }
+        .card-3d:hover {
+            transform: translateY(-8px) rotateX(4deg) rotateY(-1deg);
+            box-shadow: 0 20px 40px rgba(197,168,128,0.15), 0 0 12px rgba(197,168,128,0.06);
+        }
+
+        /* Steam smoke effects */
+        @keyframes steam-rise {
+            0% { transform: translateY(0) scaleX(1); opacity: 0; }
+            15% { opacity: 0.5; }
+            50% { transform: translateY(-15px) scaleX(1.3) skewX(-4deg); opacity: 0.25; }
+            100% { transform: translateY(-30px) scaleX(1.6) skewX(4deg); opacity: 0; }
+        }
+        .steam-line-1 { animation: steam-rise 4.2s ease-in-out infinite; transform-origin: bottom center; }
+        .steam-line-2 { animation: steam-rise 3.5s ease-in-out infinite; animation-delay: 1.1s; transform-origin: bottom center; }
+        .steam-line-3 { animation: steam-rise 4.8s ease-in-out infinite; animation-delay: 2.3s; transform-origin: bottom center; }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-dark-bg text-gray-200 font-sans antialiased min-h-screen transition-colors duration-300 relative">
+
+    <!-- TOP HEADER -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-[#050608]/80 backdrop-blur-xl border-b border-gold/10 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 select-none cursor-pointer" onclick="promptAdminLogin()">
+                <div id="header-logo-container" class="flex items-center gap-2">
+                    <span id="text-logo" class="font-serif text-lg md:text-xl font-bold tracking-widest text-gold">
+                        AMSHI CAFE
+                    </span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <!-- Dynamic Table Badge -->
+                <div id="table-badge" class="hidden items-center gap-2 bg-gold/15 border border-gold/30 px-3 py-1.5 rounded-full text-xs font-semibold text-gold shadow-md">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Table No: <span id="table-number-val">-</span></span>
+                </div>
+                
+                <!-- Admin Lock Toggle Bypass -->
+                <button id="admin-lock-btn" onclick="promptAdminLogin()" class="bg-dark-accent border border-gray-700 hover:border-gold p-2 rounded-lg text-gray-400 hover:text-gold transition-all duration-300 shadow-md">
+                    <i class="fa-solid fa-lock text-sm"></i>
+                </button>
+
+                <!-- Admin Action Indicator -->
+                <button id="admin-panel-btn" onclick="toggleAdminView()" class="hidden bg-gold text-dark-bg font-extrabold px-3 py-1.5 rounded-lg text-xs tracking-wider transition-all duration-300 shadow-lg shadow-gold/10">
+                    <i class="fa-solid fa-screwdriver-wrench mr-1"></i> Admin Panel
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CUSTOMER MENU AREA -->
+    <div id="customer-view" class="pt-16 pb-24 relative z-10">
+        <!-- Hero Spotlight -->
+        <section class="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+            <div class="absolute inset-0 z-0">
+                <div id="hero-banner-image" class="w-full h-full bg-cover bg-center animate-kenburns" style="background-image: linear-gradient(rgba(5, 6, 8, 0.78), rgba(5, 6, 8, 0.96)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop&q=80');"></div>
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-transparent z-10"></div>
+            
+            <!-- Animated Gold Dust Overlay -->
+            <div class="absolute inset-0 pointer-events-none z-15 overflow-hidden">
+                <div class="particle" style="left: 12%; animation-delay: 0s; animation-duration: 15s;"></div>
+                <div class="particle" style="left: 28%; animation-delay: 3s; animation-duration: 21s;"></div>
+                <div class="particle" style="left: 48%; animation-delay: 1s; animation-duration: 17s;"></div>
+                <div class="particle" style="left: 68%; animation-delay: 7s; animation-duration: 24s;"></div>
+                <div class="particle" style="left: 85%; animation-delay: 4s; animation-duration: 16s;"></div>
+            </div>
+            
+            <div class="relative z-20 text-center px-4 max-w-4xl mx-auto space-y-6 flex flex-col items-center justify-center fade-in">
+                <span class="text-gold uppercase tracking-[0.3em] font-semibold text-xs md:text-sm block">Premium Culinary Space</span>
+                
+                <!-- FALLING FOOD VFX CANVAS BACKGROUND (Headline background) -->
+                <div class="relative w-full max-w-lg overflow-hidden rounded-3xl py-6 my-2">
+                    <canvas id="falling-food-canvas" class="absolute inset-0 pointer-events-none z-10 opacity-75"></canvas>
+                    
+                    <div class="relative z-20 select-none">
+                        <h1 id="hero-title-main" class="text-6xl md:text-8xl text-white font-black leading-none tracking-tight text-3d-gold">
+                            AMSHI
+                        </h1>
+                        <div class="flex items-center justify-center gap-3">
+                            <div class="w-12 h-[1px] bg-gradient-to-r from-transparent to-gold"></div>
+                            <h2 class="font-serif text-2xl md:text-4xl text-gold font-light italic leading-none tracking-widest">
+                                Cafe
+                            </h2>
+                            <div class="w-12 h-[1px] bg-gradient-to-l from-transparent to-gold"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Animated steaming coffee asset -->
+                <div class="w-20 h-20 mx-auto select-none flex items-end justify-center relative py-1">
+                    <svg viewBox="0 0 100 80" class="w-14 h-14 drop-shadow-[0_0_8px_rgba(197,168,128,0.25)]">
+                        <g stroke="#E5D5C0" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.65">
+                            <path d="M42 35 Q38 25 44 15 T38 -5" class="steam-line-1"/>
+                            <path d="M50 35 Q46 22 52 10 T46 -10" class="steam-line-2"/>
+                            <path d="M58 35 Q54 28 60 18 T54 -2" class="steam-line-3"/>
+                        </g>
+                        <path d="M30 40 L35 70 C36 74, 64 74, 65 70 L70 40 Z" fill="#8d5538"/>
+                        <rect x="32" y="48" width="36" height="4" fill="#C5A880"/>
+                        <path d="M70 45 Q80 50 70 58" fill="none" stroke="#8d5538" stroke-width="4.5" stroke-linecap="round"/>
+                        <ellipse cx="50" cy="40" rx="20" ry="4" fill="#5c2e16"/>
+                    </svg>
+                </div>
+
+                <p class="text-gray-400 text-xs md:text-sm max-w-lg mx-auto leading-relaxed">
+                    Indulge in our artisan pastries, rich mocktails, and fresh gourmet bites. Order directly from your table for a premium contactless experience.
+                </p>
+                <div class="pt-2">
+                    <a href="#menu-section" class="bg-gradient-to-r from-gold to-gold-dark hover:from-gold-dark hover:to-gold text-dark-bg font-extrabold px-8 py-3.5 rounded-full shadow-lg shadow-gold/20 hover:shadow-gold/30 hover:scale-105 transition-all duration-300 inline-block text-xs uppercase tracking-widest border border-gold-light/20">
+                        Explore Our Menu <i class="fa-solid fa-arrow-down ml-2 animate-bounce"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTIONS GRID & FILTERS -->
+        <main id="menu-section" class="max-w-7xl mx-auto px-4 py-12 space-y-10">
+            <!-- Dynamic search -->
+            <div class="relative max-w-xl mx-auto">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+                    <i class="fa-solid fa-magnifying-glass text-gold/70"></i>
+                </div>
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    placeholder="Search Amshi specialities, fries, burgers, beverages..." 
+                    class="w-full bg-dark-card border border-gold/15 hover:border-gold/30 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20 text-white rounded-2xl py-3.5 pl-11 pr-4 transition-all placeholder-gray-500 text-sm shadow-xl"
+                    oninput="filterProducts()"
+                >
+            </div>
+
+            <!-- Categories Horizontal Drawer -->
+            <div class="flex items-center gap-3 overflow-x-auto py-2 hide-scrollbar scroll-smooth">
+                <button onclick="selectCategory('All')" id="category-tab-all" class="category-tab flex-shrink-0 bg-gold text-dark-bg font-extrabold px-6 py-2.5 rounded-full text-xs tracking-wider uppercase transition-all shadow-md shadow-gold/15">
+                    All Items
+                </button>
+                <div id="category-tabs" class="flex items-center gap-3"></div>
+            </div>
+
+            <!-- Products Card Loop -->
+            <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            
+            <div id="empty-search" class="hidden text-center py-20 space-y-4">
+                <i class="fa-regular fa-face-frown text-gold/50 text-5xl"></i>
+                <h3 class="text-lg font-medium text-white">No matches found for your selection</h3>
+            </div>
+        </main>
+    </div>
+
+    <!-- MASTER ADMIN CONSOLE -->
+    <div id="admin-view" class="hidden pt-24 pb-24 max-w-7xl mx-auto px-4 space-y-8 animate-fade-in relative z-20 animate-fade-in">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-gold/20 pb-6 gap-4">
+            <div>
+                <span class="text-xs text-gold font-bold uppercase tracking-widest flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> 
+                    <span>Live Local Database Sync Active</span>
+                </span>
+                <h1 class="font-serif text-3xl md:text-4xl text-white font-bold mt-1">Management Console</h1>
+            </div>
+            <div class="flex items-center gap-3 flex-wrap">
+                <button onclick="openProductModal()" class="bg-gold hover:bg-gold-dark text-dark-bg font-bold px-4 py-2.5 rounded-lg text-xs tracking-wider transition-all flex items-center gap-2 active:scale-95 shadow-md">
+                    <i class="fa-solid fa-plus"></i> Add New Dish
+                </button>
+                <button onclick="adminLogout()" class="bg-red-950/40 border border-red-500/30 hover:bg-red-500 hover:text-white text-red-400 px-4 py-2.5 rounded-lg text-xs tracking-wider transition-all active:scale-95">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+                <button onclick="toggleAdminView()" class="bg-dark-accent border border-gray-700 hover:border-gold text-gray-300 hover:text-gold px-4 py-2.5 rounded-lg text-xs tracking-wider transition-all active:scale-95">
+                    Exit Console
+                </button>
+            </div>
+        </div>
+
+        <div class="flex border-b border-gray-800 mb-6">
+            <button onclick="switchAdminTab('menu')" id="btn-admin-menu" class="admin-tab active border-b-2 border-gold text-gold font-bold px-6 py-3.5 text-xs tracking-widest uppercase">
+                Menu Management
+            </button>
+            <button onclick="switchAdminTab('qr')" id="btn-admin-qr" class="admin-tab border-b-2 border-transparent text-gray-400 hover:text-white px-6 py-3.5 text-xs tracking-widest uppercase transition-all">
+                Table QR Codes & Settings
+            </button>
+        </div>
+
+        <!-- TAB: Menu management table -->
+        <div id="admin-menu-tab" class="space-y-6">
+            <div class="overflow-x-auto bg-dark-card rounded-2xl border border-gold/10 shadow-xl">
+                <table class="w-full text-left border-collapse min-w-[700px]">
+                    <thead>
+                        <tr class="border-b border-gold/10 bg-dark-accent text-gold text-xs uppercase tracking-wider font-semibold">
+                            <th class="p-4">Dish Details</th>
+                            <th class="p-4">Category</th>
+                            <th class="p-4">Dietary Type</th>
+                            <th class="p-4 text-right">Base Price</th>
+                            <th class="p-4 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body" class="divide-y divide-gray-800 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: Table Settings & Dynamic QR -->
+        <div id="admin-qr-tab" class="hidden space-y-8">
+            <div class="bg-dark-card border border-gold/15 p-6 rounded-2xl space-y-4 shadow-xl">
+                <h3 class="font-serif text-lg text-gold flex items-center gap-2">
+                    <i class="fa-solid fa-gears"></i> Parameters Setup (Amshi Cafe)
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="space-y-1 block">
+                        <label class="text-xs text-gold uppercase tracking-wider font-semibold block">WhatsApp Order Receiver Number</label>
+                        <input type="text" id="settings-whatsapp" oninput="saveAdminSettings()" class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-sm text-white">
+                    </div>
+                    <div class="space-y-1 block">
+                        <label class="text-xs text-gold uppercase tracking-wider font-semibold block">Custom Logo URL</label>
+                        <input type="text" id="settings-logo-url" oninput="saveAdminSettings()" placeholder="e.g. https://domain.com/logo.png" class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-sm text-white">
+                    </div>
+                    <div class="space-y-1 block">
+                        <label class="text-xs text-gold uppercase tracking-wider font-semibold block">Hero Spotlights Background URL</label>
+                        <input type="text" id="settings-banner-url" oninput="saveAdminSettings()" class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-sm text-white">
+                    </div>
+                    <div class="space-y-1 block">
+                        <label class="text-xs text-gold uppercase tracking-wider font-semibold block">Table Count (Dynamic QR generation)</label>
+                        <input type="number" id="settings-tables" oninput="saveAdminSettings()" min="1" max="100" class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-sm text-white">
+                    </div>
+                    <div class="space-y-1 block">
+                        <label class="text-xs text-gold uppercase tracking-wider font-semibold block">Domain / Website URL (Dynamic Overrides)</label>
+                        <input type="text" id="settings-website-url" oninput="saveAdminSettings()" placeholder="Leave empty for auto-detect" class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-sm text-white">
+                    </div>
+                    <div class="space-y-1 block">
+                        <label class="text-xs text-gold uppercase tracking-wider font-semibold block">GST / Tax (%)</label>
+                        <input type="number" id="settings-tax" oninput="saveAdminSettings()" min="0" max="100" class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-sm text-white">
+                    </div>
+                    <div class="space-y-1 block">
+                        <label class="text-xs text-gold uppercase tracking-wider font-semibold block">Packaging / Service Fee (₹)</label>
+                        <input type="number" id="settings-delivery" oninput="saveAdminSettings()" min="0" class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-sm text-white">
+                    </div>
+                    <div class="space-y-1 block">
+                        <label class="text-xs text-gold uppercase tracking-wider font-semibold block">Theme Accent Preset</label>
+                        <select id="settings-theme" onchange="saveAdminSettings()" class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-sm text-white">
+                            <option value="black-gold">Premium Black & Gold Presets</option>
+                            <option value="royal-red">Royal Crimson Red Accent</option>
+                            <option value="forest-green">Deep Emerald Green Accent</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pt-3 border-t border-gray-800 flex flex-wrap justify-between items-center gap-3">
+                    <p class="text-[10px] text-gray-500">
+                        * All adjustments auto-save instantly. QRs update dynamically without needing a reload. Name is locked to Amshi Cafe.
+                    </p>
+                    <div class="flex items-center gap-2">
+                        <button onclick="printAllQrCodes()" class="bg-gold text-dark-bg text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gold-dark transition-all">
+                            <i class="fa-solid fa-print"></i> Print All QRs
+                        </button>
+                        <button onclick="triggerDownloadAllQRs()" class="bg-dark-accent border border-gray-700 hover:border-gold text-white hover:text-gold text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-download"></i> Download All QRs
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table QRs Grid Layout -->
+            <div id="qr-codes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
+
+    <!-- FLOATING CART BAR -->
+    <div id="floating-cart" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-md bg-gradient-to-r from-gold to-gold-dark text-dark-bg p-4 rounded-2xl shadow-[0_10px_30px_rgba(197,168,128,0.3)] flex items-center justify-between transform scale-0 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="bg-dark-bg text-gold w-10 h-10 rounded-xl flex items-center justify-center relative shadow-md">
+                <i class="fa-solid fa-basket-shopping"></i>
+                <span id="cart-badge-count" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+            </div>
+            <div>
+                <p class="text-[10px] uppercase tracking-wider font-extrabold text-dark-bg/70">Shopping Basket</p>
+                <p class="font-bold text-lg leading-none" id="cart-float-total">₹0</p>
+            </div>
+        </div>
+        <button onclick="toggleCartDrawer(true)" class="bg-dark-bg hover:bg-black/90 text-white font-bold text-xs uppercase tracking-widest px-5 py-3 rounded-xl transition-all shadow-md active:scale-95">
+            Checkout Basket <i class="fa-solid fa-chevron-right ml-1 text-gold"></i>
+        </button>
+    </div>
+
+    <!-- CART SIDE DRAWER -->
+    <div id="cart-drawer-overlay" class="fixed inset-0 bg-dark-bg/80 backdrop-blur-md z-50 opacity-0 pointer-events-none transition-all duration-300" onclick="toggleCartDrawer(false)"></div>
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-dark-card/95 backdrop-blur-xl border-l border-gold/10 z-50 transform translate-x-full transition-all duration-300 flex flex-col shadow-2xl">
+        <div class="p-5 border-b border-gold/10 flex items-center justify-between bg-dark-accent/60">
+            <div class="flex flex-col">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-utensils text-gold text-lg"></i>
+                    <h3 class="font-serif text-lg font-bold text-white">Your Order</h3>
+                </div>
+                <!-- Dynamic cart header table identifier badge -->
+                <span id="cart-drawer-table-val" class="text-xs text-gold font-semibold mt-1">Table No: Loading...</span>
+            </div>
+            <button onclick="toggleCartDrawer(false)" class="text-gray-400 hover:text-white p-2 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="flex-grow overflow-y-auto p-5 space-y-4" id="cart-items-container"></div>
+
+        <div class="p-5 border-t border-gold/10 bg-dark-accent/80 space-y-4">
+            <div class="space-y-2">
+                <div class="flex justify-between text-xs text-gray-400">
+                    <span>Base Subtotal</span>
+                    <span id="cart-base-total">₹0</span>
+                </div>
+                <div id="tax-row" class="hidden justify-between text-xs text-gray-400">
+                    <span>GST / Taxes</span>
+                    <span id="cart-tax">₹0</span>
+                </div>
+                <div id="delivery-row" class="hidden justify-between text-xs text-gray-400">
+                    <span>Packaging & Services</span>
+                    <span id="cart-delivery">₹0</span>
+                </div>
+                <div class="flex justify-between font-bold text-white text-base pt-2 border-t border-gray-800">
+                    <span>Grand Total</span>
+                    <span id="cart-grand-total" class="text-gold text-lg">₹0</span>
+                </div>
+            </div>
+
+            <button onclick="sendOrderViaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-xs tracking-wider uppercase shadow-lg active:scale-95">
+                <i class="fa-brands fa-whatsapp text-lg"></i> Send Order on WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- PRODUCT DETAIL FORM MODAL -->
+    <div id="product-modal-overlay" class="fixed inset-0 bg-dark-bg/80 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-4">
+        <div id="product-modal" class="bg-dark-card border border-gold/20 w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-all duration-300">
+            <div class="p-5 border-b border-gold/10 flex items-center justify-between bg-dark-accent">
+                <h3 id="modal-title" class="font-serif text-base text-gold font-bold">Add Gourmet Dish</h3>
+                <button onclick="closeProductModal()" class="text-gray-400 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <form id="product-form" onsubmit="handleProductFormSubmit(event)" class="p-5 space-y-4">
+                <input type="hidden" id="form-product-id">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1 block">
+                        <label class="text-xs text-gold uppercase tracking-wider font-semibold block">Dish Name</label>
+                        <input type="text" id="form-product-name" required class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-xs text-white">
+                    </div>
+                    <div class="space-y-1 block">
+                        <label class="text-xs text-gold uppercase tracking-wider font-semibold block">Category</label>
+                        <select id="form-product-category" required class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-xs text-white">
+                            <option value="Momos">Momos</option>
+                            <option value="Noodles">Noodles</option>
+                            <option value="Rolls">Rolls</option>
+                            <option value="Pizza">Pizza</option>
+                            <option value="Mojito">Mojito</option>
+                            <option value="Tea">Tea</option>
+                            <option value="Coffee">Coffee</option>
+                            <option value="Dessert">Dessert</option>
+                            <option value="Petis">Petis</option>
+                            <option value="Fries">Fries</option>
+                            <option value="Sandwich">Sandwich</option>
+                            <option value="Burger">Burger</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1 block">
+                        <label class="text-xs text-gold uppercase tracking-wider font-semibold block">Base Price (₹)</label>
+                        <input type="number" id="form-product-price" required class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-xs text-white">
+                    </div>
+                    <div class="space-y-1 block">
+                        <label class="text-xs text-gold uppercase tracking-wider font-semibold block">Dietary Type</label>
+                        <select id="form-product-type" required class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-xs text-white">
+                            <option value="veg">Veg</option>
+                            <option value="non-veg">Non-Veg</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-1 block">
+                    <label class="text-xs text-gold uppercase tracking-wider font-semibold block">Variants (Optional. Format: Full:120,Half:80)</label>
+                    <input type="text" id="form-product-variants" placeholder="Leave empty for single item pricing" class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-xs text-white">
+                </div>
+
+                <div class="space-y-1 block">
+                    <label class="text-xs text-gold uppercase tracking-wider font-semibold block">Image URL</label>
+                    <input type="url" id="form-product-img" required class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-xs text-white">
+                </div>
+
+                <div class="space-y-1 block">
+                    <label class="text-xs text-gold uppercase tracking-wider font-semibold block">Description</label>
+                    <textarea id="form-product-desc" rows="3" required class="w-full bg-dark-accent border border-gray-700 focus:border-gold focus:outline-none rounded-lg p-2.5 text-xs text-white"></textarea>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3 border-t border-gray-800">
+                    <button type="button" onclick="closeProductModal()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-xs transition-all">Cancel</button>
+                    <button type="submit" class="bg-gold text-dark-bg font-bold px-5 py-2 rounded-lg text-xs hover:bg-gold-dark transition-all">Save Dish</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- GLOBAL TOAST NOTIFICATION STACK -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-gold text-dark-bg px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 transition-all duration-300 translate-y-12 opacity-0 pointer-events-none font-semibold text-xs md:text-sm">
+        <i id="toast-icon" class="fa-solid fa-circle-check"></i>
+        <span id="toast-msg">Success</span>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        const DEFAULT_PRODUCTS = [
+            // MOMOS
+            { id: 'm1', name: 'Steam Momos', category: 'Momos', price: 60, type: 'veg', desc: 'Deliciously steamed dumplings stuffed with finely minced garden vegetables and herbs.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 60}, {name: 'Half', price: 30}] },
+            { id: 'm2', name: 'Fry Momos', category: 'Momos', price: 70, type: 'veg', desc: 'Crispy deep-fried golden momos served hot with spicy red chutney.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 70}, {name: 'Half', price: 40}] },
+            { id: 'm3', name: 'Kurkure Momos', category: 'Momos', price: 80, type: 'veg', desc: 'Crunchy outer layer momos coated with crispy flakes and deep fried.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 80}, {name: 'Half', price: 40}] },
+            { id: 'm4', name: 'Cheese Momos', category: 'Momos', price: 99, type: 'veg', desc: 'Momos loaded with a rich liquid cheese filling that melts in your mouth.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 99}, {name: 'Half', price: 49}] },
+            { id: 'm5', name: 'Paneer Momos', category: 'Momos', price: 80, type: 'veg', desc: 'Dumplings stuffed with freshly grated spiced paneer and mild herbs.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 80}, {name: 'Half', price: 49}] },
+            { id: 'm6', name: 'Paneer Fry Momos', category: 'Momos', price: 90, type: 'veg', desc: 'Fried paneer momos with a crunchy cover and aromatic spice stuffing.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 90}, {name: 'Half', price: 59}] },
+            { id: 'm7', name: 'Paneer Kurkure Momos', category: 'Momos', price: 99, type: 'veg', desc: 'Paneer momos with a super crunchy, crispy munchy outer layer.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 99}, {name: 'Half', price: 60}] },
+            { id: 'm8', name: 'Paneer Cheese Momos', category: 'Momos', price: 120, type: 'veg', desc: 'Ultimate combination of melt-in-the-mouth paneer and rich mozzarella cheese.', img: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 120}, {name: 'Half', price: 80}] },
+
+            // NOODLES
+            { id: 'n1', name: 'Veg Chaumin', category: 'Noodles', price: 80, type: 'veg', desc: 'Stir-fried noodles loaded with crunchy vegetables, light soy sauce, and aromatic garlic.', img: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 80}, {name: 'Half', price: 40}] },
+            { id: 'n2', name: 'Hakka Noodles', category: 'Noodles', price: 99, type: 'veg', desc: 'Classic Indo-Chinese style tossed noodles with fresh shredded vegetables.', img: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 99}, {name: 'Half', price: 60}] },
+            { id: 'n3', name: 'Schezwan Noodles', category: 'Noodles', price: 99, type: 'veg', desc: 'Fiery wok-tossed noodles with a spicy garlic-chilli Schezwan sauce.', img: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 99}, {name: 'Half', price: 60}] },
+            { id: 'n4', name: 'Garlic Noodles', category: 'Noodles', price: 120, type: 'veg', desc: 'Wok-tossed noodles packed with intense caramelized garlic flavor and fresh scallions.', img: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 120}, {name: 'Half', price: 80}] },
+
+            // ROLLS
+            { id: 'r1', name: 'Veggie Roll', category: 'Rolls', price: 60, type: 'veg', desc: 'Golden paratha roll stuffed with spicy mixed veggies.', img: 'https://images.unsplash.com/photo-1626700051175-6518c4793f4f?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 60}, {name: 'Half', price: 30}] },
+            { id: 'r2', name: 'Paneer Roll', category: 'Rolls', price: 80, type: 'veg', desc: 'Warm flaky wrap stuffed with spiced tandoori paneer cubes.', img: 'https://images.unsplash.com/photo-1626700051175-6518c4793f4f?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 80}, {name: 'Half', price: 50}] },
+            { id: 'r3', name: 'Cheese Roll', category: 'Rolls', price: 99, type: 'veg', desc: 'Flaky wrap bursting with gooey melted cheese, mixed herbs.', img: 'https://images.unsplash.com/photo-1626700051175-6518c4793f4f?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Full', price: 99}, {name: 'Half', price: 60}] },
+
+            // PIZZA
+            { id: 'p1', name: 'Margherita Pizza', category: 'Pizza', price: 99, type: 'veg', desc: 'Simple elegance with fresh tomato marinara sauce, mozzarella cheese.', img: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=600&auto=format&fit=crop&q=80' },
+            { id: 'p2', name: 'Onion Pizza', category: 'Pizza', price: 99, type: 'veg', desc: 'Fresh crispy onion slices layered over mozzarella.', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80' },
+            { id: 'p3', name: 'Paneer Pizza', category: 'Pizza', price: 149, type: 'veg', desc: 'Tender marinated paneer tikka chunks with capsicum and gooey cheese.', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80' },
+            { id: 'p4', name: 'Sweet Corn Pizza', category: 'Pizza', price: 99, type: 'veg', desc: 'Toasted sweet corn kernels scattered on top of mozzarella.', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80' },
+            { id: 'p5', name: 'Farmhouse Pizza', category: 'Pizza', price: 199, type: 'veg', desc: 'Loaded with capsicum, onion, tomato, mushrooms, and golden corn.', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80', variants: [{name: 'Small', price: 199}, {name: 'Medium', price: 299}] },
+
+            // MOJITO
+            { id: 'j1', name: 'Blue Curacao Mojito', category: 'Mojito', price: 69, type: 'veg', desc: 'A refreshing combination of blue curacao syrup, sparkling soda.', img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80' },
+            { id: 'j2', name: 'Mint Mojito', category: 'Mojito', price: 69, type: 'veg', desc: 'The classic refresher with crushed fresh mint leaves, lime juice.', img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80' },
+            { id: 'j3', name: 'Black Currant Mojito', category: 'Mojito', price: 69, type: 'veg', desc: 'Tangy and sweet black currant extract mixed with ice-cold minty soda.', img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80' },
+            { id: 'j4', name: 'Green Apple Mojito', category: 'Mojito', price: 69, type: 'veg', desc: 'Crisp green apple flavors combined with refreshing mint water.', img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80' },
+            { id: 'j5', name: 'Water Melon Mojito', category: 'Mojito', price: 69, type: 'veg', desc: 'Sweet, juicy watermelon extracts with crushed mint.', img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80' },
+            { id: 'j6', name: 'Mango Mojito', category: 'Mojito', price: 69, type: 'veg', desc: 'Tropical mango pulp meets zesty lime and sparkling soda.', img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80' },
+            { id: 'j7', name: 'Red Rose Mojito', category: 'Mojito', price: 69, type: 'veg', desc: 'Fragrant rose syrup infused with bubbly soda, lemon juice.', img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80' },
+            { id: 'j8', name: 'Strawberry Mojito', category: 'Mojito', price: 69, type: 'veg', desc: 'Sweet strawberry syrup crushed with fresh mint leaves.', img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80' },
+            { id: 'j9', name: 'Bubble Gum Mojito', category: 'Mojito', price: 69, type: 'veg', desc: 'Fun nostalgic sweet bubble gum flavour mixed with fizzy soda.', img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80' },
+
+            // TEA
+            { id: 't1', name: 'Normal Tea', category: 'Tea', price: 13, type: 'veg', desc: 'Traditional hot brewed milk tea with rich Indian tea leaves.', img: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80' },
+            { id: 't2', name: 'Lemon Tea', category: 'Tea', price: 19, type: 'veg', desc: 'Black tea brewed with fresh lemon juice and honey.', img: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80' },
+            { id: 't3', name: 'Adrak Tea', category: 'Tea', price: 25, type: 'veg', desc: 'Spiced ginger tea slow brewed with fresh grated ginger root.', img: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80' },
+            { id: 't4', name: 'Kulhad Tea', category: 'Tea', price: 25, type: 'veg', desc: 'Traditional chai served in an eco-friendly clay cup.', img: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80' },
+            { id: 't5', name: 'Elaichi Tea', category: 'Tea', price: 29, type: 'veg', desc: 'Milk tea infused with the sweet fragrance of cardamom.', img: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&auto=format&fit=crop&q=80' },
+
+            // COFFEE
+            { id: 'c1', name: 'Hot Coffee', category: 'Coffee', price: 35, type: 'veg', desc: 'Classic frothy hot espresso brewed with fresh milk.', img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600&auto=format&fit=crop&q=80' },
+            { id: 'c2', name: 'Chocolate Coffee', category: 'Coffee', price: 45, type: 'veg', desc: 'Delectable blend of hot espresso and chocolate sauce.', img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600&auto=format&fit=crop&q=80' },
+            { id: 'c3', name: 'Caramel Coffee', category: 'Coffee', price: 45, type: 'veg', desc: 'Hot espresso infused with buttery caramel syrup.', img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600&auto=format&fit=crop&q=80' },
+            { id: 'c4', name: 'Hazelnut Coffee', category: 'Coffee', price: 45, type: 'veg', desc: 'Frothy hot coffee infused with toasted hazelnut flavor.', img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600&auto=format&fit=crop&q=80' },
+            { id: 'c5', name: 'Cold Coffee', category: 'Coffee', price: 69, type: 'veg', desc: 'Thick, creamy, and chilled coffee blended with vanilla cream.', img: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600&auto=format&fit=crop&q=80' },
+            { id: 'c6', name: 'KitKat Cold Coffee', category: 'Coffee', price: 99, type: 'veg', desc: 'Chilled cold coffee blended with crunchy KitKat pieces.', img: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600&auto=format&fit=crop&q=80' },
+
+            // DESSERT
+            { id: 'd1', name: 'Vanilla Ice Cream', category: 'Dessert', price: 50, type: 'veg', desc: 'Classic smooth vanilla bean ice cream scoop.', img: 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600&auto=format&fit=crop&q=80' },
+            { id: 'd2', name: 'Chocolate Ice Cream', category: 'Dessert', price: 50, type: 'veg', desc: 'Rich and creamy dark chocolate ice cream scoop.', img: 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600&auto=format&fit=crop&q=80' },
+            { id: 'd3', name: 'Coffee Ice Cream', category: 'Dessert', price: 50, type: 'veg', desc: 'Roasted coffee bean flavored sweet ice cream.', img: 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600&auto=format&fit=crop&q=80' },
+            { id: 'd4', name: 'Strawberry Ice Cream', category: 'Dessert', price: 50, type: 'veg', desc: 'Creamy scoop infused with natural strawberries.', img: 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600&auto=format&fit=crop&q=80' },
+            { id: 'd5', name: 'Mango Ice Cream', category: 'Dessert', price: 50, type: 'veg', desc: 'Tropical alphanso mango flavored smooth ice cream.', img: 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600&auto=format&fit=crop&q=80' },
+            { id: 'd6', name: 'Butterscotch Ice Cream', category: 'Dessert', price: 50, type: 'veg', desc: 'Classic butterscotch crunchies in vanilla scoop.', img: 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600&auto=format&fit=crop&q=80' },
+            { id: 'd7', name: 'Cold Drink', category: 'Dessert', price: 40, type: 'veg', desc: 'Ice cold carbonated beverage.', img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&auto=format&fit=crop&q=80' },
+
+            // PETIS
+            { id: 'e1', name: 'Aloo Petis', category: 'Petis', price: 20, type: 'veg', desc: 'Flaky baked puff pastry stuffed with spiced potato.', img: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=600&auto=format&fit=crop&q=80' },
+            { id: 'e2', name: 'Paneer Petis', category: 'Petis', price: 30, type: 'veg', desc: 'Puff pastry baked with seasoned paneer bhurji.', img: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=600&auto=format&fit=crop&q=80' },
+            { id: 'e3', name: 'Cheese Petis', category: 'Petis', price: 30, type: 'veg', desc: 'Crispy flaky puff with molten liquid cheese center.', img: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=600&auto=format&fit=crop&q=80' },
+
+            // FRIES
+            { id: 'f1', name: 'Plain Salted Fries', category: 'Fries', price: 49, type: 'veg', desc: 'Golden and crispy salted potato fingers.', img: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&auto=format&fit=crop&q=80' },
+            { id: 'f2', name: 'Peri Peri Fries', category: 'Fries', price: 59, type: 'veg', desc: 'Crispy golden fries tossed in peri peri seasoning.', img: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&auto=format&fit=crop&q=80' },
+            { id: 'f3', name: 'Cheese Fries', category: 'Fries', price: 99, type: 'veg', desc: 'Crispy hot fries drenched in liquid cheese sauce.', img: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&auto=format&fit=crop&q=80' },
+            { id: 'f4', name: 'Mayonnaise Fries', category: 'Fries', price: 99, type: 'veg', desc: 'French fries topped with dynamic garlic mayonnaise.', img: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&auto=format&fit=crop&q=80' },
+            { id: 'f5', name: 'Cheese Balls', category: 'Fries', price: 60, type: 'veg', desc: 'Deep fried crispy potato dough balls with cheese core.', img: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&auto=format&fit=crop&q=80' },
+
+            // SANDWICH
+            { id: 's1', name: 'Veggie Sandwich', category: 'Sandwich', price: 89, type: 'veg', desc: 'Grilled bread sandwich stuffed with fresh greens.', img: 'https://images.unsplash.com/photo-1539252554453-80ab65ce3586?w=600&auto=format&fit=crop&q=80' },
+            { id: 's2', name: 'Cheese Sandwich', category: 'Sandwich', price: 119, type: 'veg', desc: 'Toasted double cheese sandwich with processed mozzarella.', img: 'https://images.unsplash.com/photo-1539252554453-80ab65ce3586?w=600&auto=format&fit=crop&q=80' },
+            { id: 's3', name: 'Paneer Sandwich', category: 'Sandwich', price: 119, type: 'veg', desc: 'Sautéed paneer cubes stuffed in sandwich bread.', img: 'https://images.unsplash.com/photo-1539252554453-80ab65ce3586?w=600&auto=format&fit=crop&q=80' },
+            { id: 's4', name: 'Makhani Sandwich', category: 'Sandwich', price: 129, type: 'veg', desc: 'Paneer loaded sandwich grilled with tikka gravy.', img: 'https://images.unsplash.com/photo-1539252554453-80ab65ce3586?w=600&auto=format&fit=crop&q=80' },
+            { id: 's5', name: 'Cheese Garlic Sandwich', category: 'Sandwich', price: 129, type: 'veg', desc: 'Buttery garlic grilled bread with shredded cheese.', img: 'https://images.unsplash.com/photo-1539252554453-80ab65ce3586?w=600&auto=format&fit=crop&q=80' },
+
+            // BURGER
+            { id: 'b1', name: 'Crispy Veggies Burger', category: 'Burger', price: 45, type: 'veg', desc: 'Fried crisp vegetable patty served with lettuce.', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80' },
+            { id: 'b2', name: 'Chilli Cheese Burger', category: 'Burger', price: 69, type: 'veg', desc: 'Savory patty topped with sliced jalapenos and cheese.', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80' },
+            { id: 'b3', name: 'Paneer King Burger', category: 'Burger', price: 69, type: 'veg', desc: 'Thick grilled paneer patty topped with rich special dressing.', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80' },
+            { id: 'b4', name: 'Makhani Burger', category: 'Burger', price: 99, type: 'veg', desc: 'Crispy patty drenched in rich butter masala makhani gravy.', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80' },
+            { id: 'b5', name: 'Extra Loaded Double Tikki Burger', category: 'Burger', price: 110, type: 'veg', desc: 'Double crispy patties, cheese, and fresh greens.', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80' }
+        ];
+
+        let products = [];
+        let cart = [];
+        let selectedCategory = 'All';
+        let currentTable = null;
+        let isAdminView = false;
+        let currentAdminTab = 'menu';
+        let selectedVariants = {}; 
+
+        const REST_NAME = "Amshi Cafe";
+
+        const DEFAULT_SETTINGS = {
+            logo: "",
+            banner: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&auto=format&fit=crop&q=80",
+            theme: "black-gold",
+            whatsapp: "6299386787",
+            tables: 10,
+            currency: "₹",
+            tax: 5,
+            delivery: 0,
+            websiteUrl: ""
+        };
+
+        window.onload = function() {
+            initDatabase();
+            detectTableAndConfigure();
+            renderCategoryTabs();
+            renderCustomerProducts();
+            updateCartUI();
+            registerPWA();
+            initFallingFoodCanvas(); 
+        };
+
+        function initDatabase() {
+            let savedSettings = localStorage.getItem('amshi_settings');
+            if (!savedSettings) {
+                localStorage.setItem('amshi_settings', JSON.stringify(DEFAULT_SETTINGS));
+                savedSettings = JSON.stringify(DEFAULT_SETTINGS);
+            }
+            const settings = JSON.parse(savedSettings);
+            applySettingsToUI(settings);
+
+            let savedMenu = localStorage.getItem('amshi_menu');
+            if (!savedMenu) {
+                localStorage.setItem('amshi_menu', JSON.stringify(DEFAULT_PRODUCTS));
+                savedMenu = JSON.stringify(DEFAULT_PRODUCTS);
+            }
+            products = JSON.parse(savedMenu);
+        }
+
+        function getSettings() {
+            return JSON.parse(localStorage.getItem('amshi_settings')) || DEFAULT_SETTINGS;
+        }
+
+        function applySettingsToUI(settings) {
+            const headerLogoContainer = document.getElementById('header-logo-container');
+            if (headerLogoContainer) {
+                if (settings.logo && settings.logo.trim() !== "") {
+                    headerLogoContainer.innerHTML = `<img src="${settings.logo}" alt="${REST_NAME}" class="h-9 object-contain">`;
+                } else {
+                    headerLogoContainer.innerHTML = `<span id="text-logo" class="font-serif text-lg md:text-xl font-bold tracking-widest text-gold">${REST_NAME.toUpperCase()}</span>`;
+                }
+            }
+
+            const heroTitle = document.getElementById('hero-title-main');
+            if (heroTitle) heroTitle.innerText = REST_NAME.toUpperCase();
+
+            const heroBg = document.getElementById('hero-banner-image');
+            if (heroBg && settings.banner) {
+                heroBg.style.backgroundImage = `linear-gradient(rgba(5, 6, 8, 0.78), rgba(5, 6, 8, 0.96)), url('${settings.banner}')`;
+            }
+
+            applyThemePreset(settings.theme);
+
+            const adminWhatsapp = document.getElementById('settings-whatsapp');
+            if (adminWhatsapp) adminWhatsapp.value = settings.whatsapp;
+            const adminLogoUrl = document.getElementById('settings-logo-url');
+            if (adminLogoUrl) adminLogoUrl.value = settings.logo || '';
+            const adminBanner = document.getElementById('settings-banner-url');
+            if (adminBanner) adminBanner.value = settings.banner || '';
+            const adminTables = document.getElementById('settings-tables');
+            if (adminTables) adminTables.value = settings.tables;
+            const adminTax = document.getElementById('settings-tax');
+            if (adminTax) adminTax.value = settings.tax;
+            const adminDelivery = document.getElementById('settings-delivery');
+            if (adminDelivery) adminDelivery.value = settings.delivery;
+            const adminWebUrl = document.getElementById('settings-website-url');
+            if (adminWebUrl) adminWebUrl.value = settings.websiteUrl || '';
+            const adminTheme = document.getElementById('settings-theme');
+            if (adminTheme) adminTheme.value = settings.theme;
+        }
+
+        function applyThemePreset(theme) {
+            const root = document.documentElement;
+            if (theme === 'royal-red') {
+                root.style.setProperty('--dark-bg', '#120505');
+                root.style.setProperty('--dark-card', '#1e0c0c');
+                root.style.setProperty('--dark-accent', '#2b1010');
+            } else if (theme === 'forest-green') {
+                root.style.setProperty('--dark-bg', '#050c07');
+                root.style.setProperty('--dark-card', '#0b180f');
+                root.style.setProperty('--dark-accent', '#112217');
+            } else {
+                root.style.setProperty('--dark-bg', '#050608');
+                root.style.setProperty('--dark-card', '#0F1115');
+                root.style.setProperty('--dark-accent', '#181B22');
+            }
+        }
+
+        // COMPRESS PRODUCT ARRAY KEYNAMES TO KEEP DYNAMIC QR CODES SPARSE AND SCAN-READY [1]
+        function minifyProduct(p) {
+            return {
+                id: p.id,
+                n: p.name,
+                c: p.category,
+                p: p.price,
+                t: p.type,
+                i: p.img,
+                d: p.desc,
+                v: p.variants || undefined
+            };
+        }
+
+        function expandProduct(min) {
+            return {
+                id: min.id,
+                name: min.n,
+                category: min.c,
+                price: min.p,
+                type: min.t,
+                img: min.i,
+                desc: min.d,
+                variants: min.v || undefined
+            };
+        }
+
+        // COMPILE SYSTEM SETTINGS AND PRODUCT DIFFERENCES (DELTAS) TO EMBED INSIDE THE URL [1]
+        function compileFullDelta() {
+            const settings = getSettings();
+            const baseSettings = DEFAULT_SETTINGS;
+
+            let sDiff = {};
+            if (settings.whatsapp !== baseSettings.whatsapp) sDiff.w = settings.whatsapp;
+            if (settings.logo !== baseSettings.logo) sDiff.l = settings.logo;
+            if (settings.banner !== baseSettings.banner) sDiff.b = settings.banner;
+            if (settings.theme !== baseSettings.theme) sDiff.th = settings.theme;
+            if (settings.tax !== baseSettings.tax) sDiff.tx = settings.tax;
+            if (settings.delivery !== baseSettings.delivery) sDiff.d = settings.delivery;
+
+            const baseMenu = DEFAULT_PRODUCTS;
+            const added = products.filter(p => !baseMenu.some(bp => bp.id === p.id)).map(p => minifyProduct(p));
+            const deleted = baseMenu.filter(bp => !products.some(p => p.id === bp.id)).map(bp => bp.id);
+            const modified = [];
+
+            products.forEach(p => {
+                const bp = baseMenu.find(item => item.id === p.id);
+                if (!bp) return;
+                let diff = {};
+                let changed = false;
+                if (p.name !== bp.name) { diff.n = p.name; changed = true; }
+                if (p.price !== bp.price) { diff.p = p.price; changed = true; }
+                if (p.type !== bp.type) { diff.t = p.type; changed = true; }
+                if (p.img !== bp.img) { diff.i = p.img; changed = true; }
+                if (p.desc !== bp.desc) { diff.d = p.desc; changed = true; }
+                
+                const bpVarsStr = bp.variants ? JSON.stringify(bp.variants) : "";
+                const pVarsStr = p.variants ? JSON.stringify(p.variants) : "";
+                if (pVarsStr !== bpVarsStr) { diff.v = p.variants; changed = true; }
+
+                if (changed) {
+                    diff.id = p.id;
+                    modified.push(diff);
+                }
+            });
+
+            return {
+                s: sDiff,
+                a: added,
+                m: modified,
+                d: deleted
+            };
+        }
+
+        function applyFullDelta(delta) {
+            if (!delta) return;
+            
+            // 1. Process Settings modifications [1]
+            if (delta.s) {
+                const settings = getSettings();
+                if (delta.s.w) settings.whatsapp = delta.s.w;
+                if (delta.s.l) settings.logo = delta.s.l;
+                if (delta.s.b) settings.banner = delta.s.b;
+                if (delta.s.th) settings.theme = delta.s.th;
+                if (delta.s.tx !== undefined) settings.tax = delta.s.tx;
+                if (delta.s.d !== undefined) settings.delivery = delta.s.d;
+                localStorage.setItem('amshi_settings', JSON.stringify(settings));
+                applySettingsToUI(settings);
+            }
+
+            // 2. Process Menu additions/updates/deletions [1]
+            let activeProducts = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+            
+            if (Array.isArray(delta.d)) {
+                activeProducts = activeProducts.filter(p => !delta.d.includes(p.id));
+            }
+            if (Array.isArray(delta.m)) {
+                delta.m.forEach(mod => {
+                    const item = activeProducts.find(p => p.id === mod.id);
+                    if (item) {
+                        if (mod.n) item.name = mod.n;
+                        if (mod.p !== undefined) item.price = mod.p;
+                        if (mod.t) item.type = mod.t;
+                        if (mod.i) item.img = mod.i;
+                        if (mod.d) item.desc = mod.d;
+                        if (mod.v) item.variants = mod.v;
+                    }
+                });
+            }
+            if (Array.isArray(delta.a)) {
+                delta.a.forEach(add => {
+                    const expanded = expandProduct(add);
+                    activeProducts.unshift(expanded);
+                });
+            }
+
+            localStorage.setItem('amshi_menu', JSON.stringify(activeProducts));
+            products = activeProducts;
+        }
+
+        // SAVE CONFIGS AND AUTOMATICALLY TRIGGER INSTANT QR REBUILD WITH ENCODED DELTAS [1]
+        function saveAdminSettings() {
+            const current = {
+                whatsapp: document.getElementById('settings-whatsapp').value,
+                logo: document.getElementById('settings-logo-url').value,
+                banner: document.getElementById('settings-banner-url').value,
+                tables: parseInt(document.getElementById('settings-tables').value) || 10,
+                websiteUrl: document.getElementById('settings-website-url').value,
+                tax: parseFloat(document.getElementById('settings-tax').value) || 0,
+                delivery: parseFloat(document.getElementById('settings-delivery').value) || 0,
+                theme: document.getElementById('settings-theme').value,
+                currency: "₹"
+            };
+            localStorage.setItem('amshi_settings', JSON.stringify(current));
+            applySettingsToUI(current);
+            renderQrCodesInAdmin(); // Updates Admin QR tab instantly on value input
+            detectTableAndConfigure();
+        }
+
+        // URL TABLE DETECTION + DELTA INTEGRATION SYSTEM [1]
+        function detectTableAndConfigure() {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Apply URL Delta modifications instantly if present in the scanned URL [1]
+            const deltaStr = params.get('d');
+            if (deltaStr) {
+                try {
+                    const delta = JSON.parse(decodeURIComponent(deltaStr));
+                    applyFullDelta(delta);
+                } catch (e) {
+                    console.error("Delta decoding fail:", e);
+                }
+            }
+
+            const tableNo = params.get('table');
+            const badge = document.getElementById('table-badge');
+            const badgeVal = document.getElementById('table-number-val');
+
+            if (tableNo && parseInt(tableNo) > 0) {
+                currentTable = parseInt(tableNo);
+                localStorage.setItem('amshi_current_table', currentTable);
+            } else {
+                const stored = localStorage.getItem('amshi_current_table');
+                if (stored) currentTable = parseInt(stored);
+            }
+
+            const activeTable = currentTable;
+            if (activeTable && activeTable > 0) {
+                if (badge && badgeVal) {
+                    badge.classList.remove('hidden');
+                    badge.classList.add('flex');
+                    badgeVal.innerText = activeTable;
+                }
+                const drawerTableVal = document.getElementById('cart-drawer-table-val');
+                if (drawerTableVal) drawerTableVal.innerText = `Table No: ${activeTable}`;
+            } else {
+                if (badge) badge.classList.add('hidden');
+                const drawerTableVal = document.getElementById('cart-drawer-table-val');
+                if (drawerTableVal) drawerTableVal.innerText = "Table No: Takeaway / Delivery";
+            }
+        }
+
+        function showToast(message, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+            if (!toast || !toastMsg || !toastIcon) return;
+            toastMsg.innerText = message;
+            if (isSuccess) {
+                toast.classList.remove('bg-red-500', 'text-white');
+                toast.classList.add('bg-gold', 'text-dark-bg');
+                toastIcon.className = "fa-solid fa-circle-check";
+            } else {
+                toast.classList.remove('bg-gold', 'text-dark-bg');
+                toast.classList.add('bg-red-500', 'text-white');
+                toastIcon.className = "fa-solid fa-circle-exclamation";
+            }
+            toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => { toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none'); }, 3000);
+        }
+
+        function renderCategoryTabs() {
+            const container = document.getElementById('category-tabs');
+            if (!container) return;
+            container.innerHTML = '';
+            const categories = [...new Set(products.map(p => p.category))];
+            categories.forEach(cat => {
+                container.innerHTML += `
+                    <button id="category-tab-${cat.replace(/\s+/g, '')}" onclick="selectCategory('${cat}')" class="category-tab flex-shrink-0 border border-gold/10 hover:border-gold/40 text-gray-300 hover:text-gold px-5 py-2.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300">${cat}</button>
+                `;
+            });
+        }
+
+        function selectCategory(cat) {
+            selectedCategory = cat;
+            const tabs = document.querySelectorAll('.category-tab');
+            tabs.forEach(t => {
+                t.classList.remove('bg-gold', 'text-dark-bg', 'font-extrabold', 'shadow-md');
+                t.classList.add('border', 'border-gold/10', 'text-gray-300');
+            });
+            const activeTabId = cat === 'All' ? 'category-tab-all' : `category-tab-${cat.replace(/\s+/g, '')}`;
+            const activeTab = document.getElementById(activeTabId);
+            if (activeTab) {
+                activeTab.classList.remove('border', 'border-gold/10', 'text-gray-300');
+                activeTab.classList.add('bg-gold', 'text-dark-bg', 'font-extrabold', 'shadow-md');
+            }
+            filterProducts();
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const grid = document.getElementById('products-grid');
+            const emptyState = document.getElementById('empty-search');
+            if (!grid || !emptyState) return;
+            const filtered = products.filter(p => {
+                const matchesCat = selectedCategory === 'All' || p.category === selectedCategory;
+                const matchesSearch = p.name.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query) || p.category.toLowerCase().includes(query);
+                return matchesCat && matchesSearch;
+            });
+            if (filtered.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            } else {
+                grid.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                renderCustomerProducts(filtered);
+            }
+        }
+
+        function renderCustomerProducts(list = products) {
+            const grid = document.getElementById('products-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            list.forEach(p => {
+                const activeVarIndex = selectedVariants[p.id] || 0;
+                let activePrice = p.price;
+                if (p.variants && p.variants.length > 0) activePrice = p.variants[activeVarIndex].price;
+                const cartId = p.variants && p.variants.length > 0 ? `${p.id}_${p.variants[activeVarIndex].name}` : p.id;
+                const cartItem = cart.find(item => item.cartId === cartId);
+                const qty = cartItem ? cartItem.quantity : 0;
+
+                const dietBadge = p.type === 'veg' 
+                    ? `<div class="flex items-center gap-1.5 border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 rounded-lg text-[9px] text-emerald-400 font-bold uppercase tracking-wider"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Veg</div>`
+                    : `<div class="flex items-center gap-1.5 border border-red-500/20 bg-red-500/10 px-2.5 py-1 rounded-lg text-[9px] text-red-400 font-bold uppercase tracking-wider"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Non-Veg</div>`;
+
+                let variantSelector = '';
+                if (p.variants && p.variants.length > 0) {
+                    variantSelector += `<div class="flex items-center gap-2 mt-2">`;
+                    p.variants.forEach((v, idx) => {
+                        const isActive = idx === activeVarIndex;
+                        const btnClass = isActive ? `bg-gold text-dark-bg font-extrabold` : `bg-dark-accent/40 border border-gold/15 text-gray-400`;
+                        variantSelector += `<button onclick="changeActiveVariant('${p.id}', ${idx})" class="px-2.5 py-1 rounded-lg text-[10px] uppercase font-bold tracking-widest transition-all ${btnClass}">${v.name} (₹${v.price})</button>`;
+                    });
+                    variantSelector += `</div>`;
+                }
+
+                const actionArea = qty > 0 
+                    ? `<div class="flex items-center justify-between bg-gold rounded-xl p-1 text-dark-bg font-bold shadow-md"><button onclick="updateCartQuantity('${cartId}', -1)" class="w-8 h-8 flex items-center justify-center hover:bg-gold-dark/20 rounded-lg transition-all"><i class="fa-solid fa-minus text-xs"></i></button><span class="text-sm font-bold">${qty}</span><button onclick="updateCartQuantity('${cartId}', 1)" class="w-8 h-8 flex items-center justify-center hover:bg-gold-dark/20 rounded-lg transition-all"><i class="fa-solid fa-plus text-xs"></i></button></div>`
+                    : `<button onclick="addProductToCart('${p.id}')" class="w-full bg-dark-accent border border-gold/10 hover:border-gold hover:bg-gold hover:text-dark-bg text-gold font-bold py-2.5 px-4 rounded-xl text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 active:scale-95 shadow-md"><i class="fa-solid fa-plus text-[10px]"></i> Add To Order</button>`;
+
+                grid.innerHTML += `
+                    <div class="fade-in card-3d bg-dark-card border border-gold/5 hover:border-gold/20 rounded-2xl overflow-hidden flex flex-col justify-between shadow-xl">
+                        <div class="relative overflow-hidden h-48 md:h-52 bg-dark-accent"><img src="${p.img}" alt="${p.name}" class="w-full h-full object-cover opacity-85 hover:opacity-100 transition-opacity duration-500" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-dark-card via-transparent to-transparent"></div><div class="absolute top-3 right-3 z-10">${dietBadge}</div></div>
+                        <div class="p-5 flex-grow flex flex-col justify-between gap-4">
+                            <div class="space-y-1">
+                                <div class="flex justify-between items-start gap-2"><h3 class="font-serif text-base font-bold text-white">${p.name}</h3><span class="font-bold text-gold text-base">₹${activePrice}</span></div>
+                                <p class="text-xs text-gray-400 leading-relaxed line-clamp-2">${p.desc}</p>${variantSelector}
+                            </div>
+                            <div class="pt-2">${actionArea}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function addProductToCart(productId) {
+            const p = products.find(item => item.id === productId);
+            if (!p) return;
+            const activeVarIndex = selectedVariants[productId] || 0;
+            let cartId = productId, finalName = p.name, finalPrice = p.price;
+            if (p.variants && p.variants.length > 0) {
+                const v = p.variants[activeVarIndex];
+                cartId = `${productId}_${v.name}`;
+                finalName = `${p.name} (${v.name})`;
+                finalPrice = v.price;
+            }
+            const existing = cart.find(item => item.cartId === cartId);
+            if (existing) existing.quantity += 1;
+            else cart.push({ cartId: cartId, id: p.id, name: finalName, price: finalPrice, img: p.img, quantity: 1 });
+            showToast(`Added ${finalName} to basket`);
+            updateCartUI();
+            renderCustomerProducts();
+        }
+
+        function updateCartQuantity(cartId, change) {
+            const existing = cart.find(item => item.cartId === cartId);
+            if (!existing) return;
+
+            existing.quantity += change;
+            if (existing.quantity <= 0) {
+                cart = cart.filter(item => item.cartId !== cartId);
+                showToast("Item removed from basket");
+            }
+
+            updateCartUI();
+            renderCustomerProducts();
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items-container');
+            const cartBadge = document.getElementById('cart-badge-count');
+            const floatTotal = document.getElementById('cart-float-total');
+            const baseTotal = document.getElementById('cart-base-total');
+            const grandTotal = document.getElementById('cart-grand-total');
+            const floatBar = document.getElementById('floating-cart');
+            const taxRow = document.getElementById('tax-row');
+            const taxVal = document.getElementById('cart-tax');
+            const delRow = document.getElementById('delivery-row');
+            const delVal = document.getElementById('cart-delivery');
+            if (!container || !floatBar) return;
+
+            // Update Table indications in Sidebar before checkout [1]
+            const savedTable = localStorage.getItem('amshi_current_table');
+            const activeTableNum = currentTable || (savedTable ? parseInt(savedTable) : null);
+            const drawerTableVal = document.getElementById('cart-drawer-table-val');
+            if (drawerTableVal) {
+                drawerTableVal.innerText = activeTableNum ? `Table No: ${activeTableNum}` : "Table No: Takeaway / Delivery";
+            }
+
+            if (cart.length === 0) {
+                floatBar.classList.add('scale-0');
+                floatBar.classList.remove('scale-100');
+                container.innerHTML = `<div class="flex flex-col items-center justify-center py-24 text-center space-y-4"><i class="fa-solid fa-basket-shopping text-gold/10 text-5xl"></i><p class="text-gray-400 text-xs font-medium">Your selection basket is empty</p></div>`;
+                if (cartBadge) cartBadge.innerText = '0';
+                return;
+            }
+
+            floatBar.classList.remove('scale-0');
+            floatBar.classList.add('scale-100');
+            container.innerHTML = '';
+            let total = 0, count = 0;
+
+            cart.forEach(item => {
+                const sub = item.price * item.quantity;
+                total += sub; count += item.quantity;
+                container.innerHTML += `
+                    <div class="flex gap-4 bg-dark-accent/40 p-3 rounded-xl border border-gray-800 hover:border-gold/15 transition-all">
+                        <img src="${item.img}" alt="${item.name}" class="w-14 h-14 object-cover rounded-lg bg-dark-accent">
+                        <div class="flex-grow flex flex-col justify-between">
+                            <div class="flex justify-between items-start gap-1"><h4 class="text-xs font-semibold text-white line-clamp-1">${item.name}</h4><span class="text-xs font-bold text-gold">₹${sub}</span></div>
+                            <div class="flex items-center justify-between mt-2">
+                                <span class="text-[9px] uppercase text-gray-500 tracking-wider">Portion Qty</span>
+                                <div class="flex items-center bg-dark-accent border border-gray-700 rounded-lg p-0.5 text-white">
+                                    <button onclick="updateCartQuantity('${item.cartId}', -1)" class="w-6 h-6 flex items-center justify-center hover:bg-white/5 rounded text-xs transition-all"><i class="fa-solid fa-minus text-gray-400 text-[10px]"></i></button><span class="w-6 text-center text-[11px] font-bold">${item.quantity}</span><button onclick="updateCartQuantity('${item.cartId}', 1)" class="w-6 h-6 flex items-center justify-center hover:bg-white/5 rounded text-xs transition-all"><i class="fa-solid fa-plus text-gray-400 text-[10px]"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const settings = getSettings();
+            let taxes = 0, deliverFee = settings.delivery || 0;
+            if (settings.tax > 0) {
+                taxes = Math.round(total * (settings.tax / 100));
+                if (taxRow && taxVal) { taxRow.classList.remove('hidden'); taxRow.classList.add('flex'); taxVal.innerText = `₹${taxes}`; }
+            } else if (taxRow) { taxRow.classList.add('hidden'); }
+            if (deliverFee > 0) {
+                if (delRow && delVal) { delRow.classList.remove('hidden'); delRow.classList.add('flex'); delVal.innerText = `₹${deliverFee}`; }
+            } else if (delRow) { delRow.classList.add('hidden'); }
+
+            const finalGrand = total + taxes + deliverFee;
+            if (cartBadge) cartBadge.innerText = count;
+            if (floatTotal) floatTotal.innerText = `₹${finalGrand}`;
+            if (baseTotal) baseTotal.innerText = `₹${total}`;
+            if (grandTotal) grandTotal.innerText = `₹${finalGrand}`;
+        }
+
+        // ONE CLICK DIRECT WHATSAPP ORDER DESPATCH WITH PRECISE TABLE VALUES [1]
+        function sendOrderViaWhatsApp() {
+            if (cart.length === 0) return;
+            const settings = getSettings();
+            const now = new Date();
+            const dateStr = now.toLocaleDateString();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const savedTable = localStorage.getItem('amshi_current_table');
+            const activeTableNum = currentTable || (savedTable ? parseInt(savedTable) : null);
+
+            let orderText = `🍽️ *NEW ORDER*\n\n`;
+            orderText += `*Restaurant :* ${REST_NAME}\n`;
+            orderText += `*Table No :* ${activeTableNum ? activeTableNum : "Not Specified (Takeaway)"}\n\n`;
+            orderText += `*Items:*\n`;
+
+            let subtotal = 0;
+            cart.forEach(item => {
+                const sub = item.price * item.quantity;
+                subtotal += sub;
+                orderText += `• ${item.name} x${item.quantity} = ₹${sub}\n`;
+            });
+
+            let taxes = 0, deliverFee = settings.delivery || 0;
+            orderText += `\n----------------\n`;
+            orderText += `*Subtotal:* ₹${subtotal}\n`;
+            if (settings.tax > 0) {
+                taxes = Math.round(subtotal * (settings.tax / 100));
+                orderText += `*Tax (${settings.tax}%):* ₹${taxes}\n`;
+            }
+            if (deliverFee > 0) orderText += `*Packaging/Service Fee:* ₹${deliverFee}\n`;
+
+            const finalTotal = subtotal + taxes + deliverFee;
+            orderText += `*Total Amount:* ₹${finalTotal}\n\n`;
+            orderText += `*Date:* ${dateStr}\n`;
+            orderText += `*Time:* ${timeStr}\n\n`;
+            orderText += `Please prepare the order.`;
+
+            // Setup direct receiver phone [1]
+            let num = settings.whatsapp || "6299386787";
+            num = num.replace(/\D/g, ''); 
+            if (num.length === 10) {
+                num = "91" + num;
+            }
+
+            const encoded = encodeURIComponent(orderText);
+            const targetUrl = `https://api.whatsapp.com/send?phone=${num}&text=${encoded}`;
+            
+            // Dispatch [1]
+            window.location.href = targetUrl;
+        }
+
+        // ADMIN CONSOLE ACTIONS
+        function promptAdminLogin() {
+            const pass = prompt("Enter Administration Password:");
+            if (pass === "amshi123") {
+                showToast("Administrator verified successfully");
+                document.getElementById('admin-panel-btn').classList.remove('hidden');
+                document.getElementById('admin-lock-btn').classList.add('hidden');
+                isAdminView = false; toggleAdminView();
+            } else if (pass !== null) {
+                showToast("Invalid credentials", false);
+            }
+        }
+
+        function adminLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                document.getElementById('admin-panel-btn').classList.add('hidden');
+                document.getElementById('admin-lock-btn').classList.remove('hidden');
+                if (isAdminView) toggleAdminView();
+                showToast("Successfully logged out");
+            }
+        }
+
+        function toggleAdminView() {
+            isAdminView = !isAdminView;
+            const customer = document.getElementById('customer-view');
+            const admin = document.getElementById('admin-view');
+            const floatBar = document.getElementById('floating-cart');
+            if (isAdminView) {
+                if (customer) customer.classList.add('hidden');
+                if (admin) admin.classList.remove('hidden');
+                if (floatBar) floatBar.classList.add('scale-0');
+                switchAdminTab('menu');
+            } else {
+                if (customer) customer.classList.remove('hidden');
+                if (admin) admin.classList.add('hidden');
+                if (floatBar && cart.length > 0) floatBar.classList.remove('scale-0');
+                renderCustomerProducts();
+            }
+        }
+
+        function switchAdminTab(tabName) {
+            currentAdminTab = tabName;
+            const menuTab = document.getElementById('admin-menu-tab');
+            const qrTab = document.getElementById('admin-qr-tab');
+            const btnMenu = document.getElementById('btn-admin-menu');
+            const btnQr = document.getElementById('btn-admin-qr');
+
+            if (tabName === 'menu') {
+                menuTab.classList.remove('hidden');
+                qrTab.classList.add('hidden');
+                btnMenu.className = "admin-tab active border-b-2 border-gold text-gold font-bold px-6 py-3.5 text-xs tracking-widest uppercase";
+                btnQr.className = "admin-tab border-b-2 border-transparent text-gray-400 hover:text-white px-6 py-3.5 text-xs tracking-widest uppercase transition-all";
+                renderAdminProducts();
+            } else {
+                menuTab.classList.add('hidden');
+                qrTab.classList.remove('hidden');
+                btnQr.className = "admin-tab active border-b-2 border-gold text-gold font-bold px-6 py-3.5 text-xs tracking-widest uppercase";
+                btnMenu.className = "admin-tab border-b-2 border-transparent text-gray-400 hover:text-white px-6 py-3.5 text-xs tracking-widest uppercase transition-all";
+                renderQrCodesInAdmin();
+            }
+        }
+
+        function renderAdminProducts() {
+            const tbody = document.getElementById('admin-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            products.forEach(p => {
+                const badge = p.type === 'veg' 
+                    ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400' 
+                    : 'border-red-500/20 bg-red-500/10 text-red-400';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-dark-accent/30 transition-colors">
+                        <td class="p-4 flex items-center gap-3">
+                            <img src="${p.img}" alt="${p.name}" class="w-10 h-10 object-cover rounded-lg bg-dark-accent">
+                            <div>
+                                <h4 class="font-bold text-white">${p.name}</h4>
+                                <p class="text-[10px] text-gray-500 line-clamp-1 max-w-[280px]">${p.desc}</p>
+                            </div>
+                        </td>
+                        <td class="p-4 text-xs font-semibold text-gray-400">${p.category}</td>
+                        <td class="p-4">
+                            <span class="inline-block border px-2.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${badge}">
+                                ${p.type}
+                            </span>
+                        </td>
+                        <td class="p-4 font-bold text-white text-right">₹${p.price}</td>
+                        <td class="p-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="openProductModal('${p.id}')" class="p-2 text-gold hover:bg-gold/10 rounded-lg transition-all">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteProduct('${p.id}')" class="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // COMPILE SYSTEM SETTINGS AND DELTAS TO GENERATE ACCURATE DYNAMIC QR CODE URLs [1]
+        function renderQrCodesInAdmin() {
+            const container = document.getElementById('qr-codes-grid');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const settings = getSettings();
+            const tables = settings.tables || 10;
+            const originBase = settings.websiteUrl && settings.websiteUrl.trim() !== "" ? settings.websiteUrl : (window.location.origin + window.location.pathname);
+
+            // Create compressed edits (Deltas) payload string to append [1]
+            const delta = compileFullDelta();
+            const deltaStr = encodeURIComponent(JSON.stringify(delta));
+
+            for (let i = 1; i <= tables; i++) {
+                const targetUrl = `${originBase}?table=${i}&d=${deltaStr}`; // Delta embedded URL [1]
+                let qrImageUri = "";
+                
+                if (typeof QRious !== 'undefined') {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        new QRious({ element: canvas, value: targetUrl, size: 350, level: 'L' });
+                        qrImageUri = canvas.toDataURL('image/png');
+                    } catch (e) {
+                        qrImageUri = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(targetUrl)}`;
+                    }
+                } else {
+                    qrImageUri = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(targetUrl)}`;
+                }
+
+                container.innerHTML += `
+                    <div class="bg-dark-card border border-gold/10 hover:border-gold/35 rounded-2xl p-5 flex flex-col items-center justify-between text-center space-y-4 transition-all shadow-xl group">
+                        <div><span class="text-[10px] text-gold font-bold uppercase tracking-widest">${REST_NAME}</span><h4 class="font-serif text-lg font-bold text-white mt-1">Table No: ${i}</h4></div>
+                        <div class="bg-white p-3 rounded-2xl border border-gold/15 group-hover:scale-105 transition-all"><img src="${qrImageUri}" alt="Table ${i} QR" class="w-44 h-44 mx-auto object-contain"></div>
+                        <div class="text-[9px] text-gray-500 bg-black/40 p-2 rounded-lg w-full overflow-hidden text-ellipsis whitespace-nowrap" title="${targetUrl}"><strong>URL:</strong> ${targetUrl}</div>
+                        <div class="w-full space-y-2">
+                            <button onclick="copyToClipboard('${targetUrl}')" class="w-full bg-dark-accent border border-gray-700 hover:border-gold text-gray-300 hover:text-gold text-[11px] font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-2"><i class="fa-regular fa-copy"></i> Copy Link</button>
+                            <a href="${qrImageUri}" download="${REST_NAME.replace(/\s+/g, '_')}_Table_${i}.png" class="w-full bg-gold hover:bg-gold-dark text-dark-bg text-[11px] font-extrabold py-2 rounded-lg transition-all flex items-center justify-center gap-2 shadow-md"><i class="fa-solid fa-download"></i> Download QR</a>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function printAllQrCodes() {
+            const settings = getSettings();
+            const tables = settings.tables || 10;
+            const originBase = settings.websiteUrl && settings.websiteUrl.trim() !== "" ? settings.websiteUrl : (window.location.origin + window.location.pathname);
+            
+            const delta = compileFullDelta();
+            const deltaStr = encodeURIComponent(JSON.stringify(delta));
+
+            let printWindow = window.open('', '_blank');
+            let qrCardsHtml = '';
+            for (let i = 1; i <= tables; i++) {
+                const targetUrl = `${originBase}?table=${i}&d=${deltaStr}`;
+                const qrImageUri = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(targetUrl)}`;
+                qrCardsHtml += `<div style="width:44%;margin:2%;display:inline-block;border:3px double #C5A880;border-radius:12px;padding:25px;box-sizing:border-box;text-align:center;font-family:'Playfair Display',serif;background:#050608;color:#E5D5C0;page-break-inside:avoid;"><h1 style="margin:0;font-size:26px;color:#C5A880;">${REST_NAME.toUpperCase()}</h1><p style="margin:5px 0 15px 0;font-size:13px;text-transform:uppercase;">Premium Contactless Order</p><div style="border:2px solid #C5A880;padding:10px;display:inline-block;border-radius:8px;background:white;margin:10px 0;"><img src="${qrImageUri}" style="width:170px;height:170px;display:block;"/></div><h2 style="margin:10px 0;font-size:22px;color:#FFF;">TABLE NO: ${i}</h2><p style="margin:5px 0 0 0;font-size:11px;color:#888;font-style:italic;">Scan to View Menu & Place Orders</p></div>`;
+            }
+            printWindow.document.write(`<html><head><title>Print QRs</title><style>@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap');body{background:#FFF;margin:0;padding:10px;}</style></head><body onload="window.print();"><div style="width:100%;max-width:900px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:center;">${qrCardsHtml}</div></body></html>`);
+            printWindow.document.close();
+        }
+
+        function triggerDownloadAllQRs() {
+            const settings = getSettings();
+            const tables = settings.tables || 10;
+            const originBase = settings.websiteUrl && settings.websiteUrl.trim() !== "" ? settings.websiteUrl : (window.location.origin + window.location.pathname);
+            
+            const delta = compileFullDelta();
+            const deltaStr = encodeURIComponent(JSON.stringify(delta));
+
+            showToast("Generating and downloading all table QRs...");
+            for (let i = 1; i <= tables; i++) {
+                setTimeout(() => {
+                    const targetUrl = `${originBase}?table=${i}&d=${deltaStr}`;
+                    const canvas = document.createElement('canvas');
+                    new QRious({ element: canvas, value: targetUrl, size: 400, level: 'L' });
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = `${REST_NAME.replace(/\s+/g, '_')}_Table_${i}.png`;
+                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                }, i * 200);
+            }
+        }
+
+        function openProductModal(productId = null) {
+            const overlay = document.getElementById('product-modal-overlay');
+            const form = document.getElementById('product-form');
+            const title = document.getElementById('modal-title');
+            if (!overlay || !form || !title) return;
+            form.reset();
+            if (productId) {
+                title.innerText = "Edit Dish Price & Details";
+                const p = products.find(item => item.id === productId);
+                if (p) {
+                    document.getElementById('form-product-id').value = p.id;
+                    document.getElementById('form-product-name').value = p.name;
+                    document.getElementById('form-product-category').value = p.category;
+                    document.getElementById('form-product-price').value = p.price;
+                    document.getElementById('form-product-type').value = p.type;
+                    document.getElementById('form-product-img').value = p.img;
+                    document.getElementById('form-product-desc').value = p.desc;
+                    if (p.variants && p.variants.length > 0) {
+                        document.getElementById('form-product-variants').value = p.variants.map(v => `${v.name}:${v.price}`).join(',');
+                    } else {
+                        document.getElementById('form-product-variants').value = '';
+                    }
+                }
+            } else {
+                title.innerText = "Add Gourmet Dish";
+                document.getElementById('form-product-id').value = '';
+                document.getElementById('form-product-variants').value = '';
+            }
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            const modal = document.getElementById('product-modal');
+            if (modal) modal.classList.remove('scale-95');
+        }
+
+        function closeProductModal() {
+            const overlay = document.getElementById('product-modal-overlay');
+            const modal = document.getElementById('product-modal');
+            if (overlay) overlay.classList.add('opacity-0', 'pointer-events-none');
+            if (modal) modal.classList.add('scale-95');
+        }
+
+        function handleProductFormSubmit(event) {
+            event.preventDefault();
+            const id = document.getElementById('form-product-id').value;
+            const name = document.getElementById('form-product-name').value;
+            const category = document.getElementById('form-product-category').value;
+            const price = parseInt(document.getElementById('form-product-price').value) || 0;
+            const type = document.getElementById('form-product-type').value;
+            const img = document.getElementById('form-product-img').value;
+            const desc = document.getElementById('form-product-desc').value;
+            const varInput = document.getElementById('form-product-variants').value;
+
+            let variants = null;
+            if (varInput && varInput.trim() !== "") {
+                try {
+                    variants = varInput.split(',').map(v => {
+                        const parts = v.split(':');
+                        return { name: parts[0].trim(), price: parseInt(parts[1].trim()) || 0 };
+                    });
+                } catch (e) {
+                    showToast("Error parsing variants string. Use format: Full:120,Half:80", false); return;
+                }
+            }
+
+            if (id) {
+                const index = products.findIndex(item => item.id === id);
+                if (index !== -1) { products[index] = { id, name, category, price, type, img, desc, variants }; showToast("Dish details modified successfully"); }
+            } else {
+                const newId = 'dish_' + Date.now();
+                products.unshift({ id: newId, name, category, price, type, img, desc, variants }); showToast("New dish added to the database");
+            }
+            localStorage.setItem('amshi_menu', JSON.stringify(products));
+            closeProductModal(); renderAdminProducts(); renderCategoryTabs(); renderCustomerProducts();
+            renderQrCodesInAdmin(); // Regenerates the QRs immediately with the updated menu!
+        }
+
+        function deleteProduct(productId) {
+            if (confirm("Are you sure you want to completely remove this dish?")) {
+                products = products.filter(item => item.id !== productId);
+                localStorage.setItem('amshi_menu', JSON.stringify(products));
+                renderAdminProducts(); renderCategoryTabs(); renderCustomerProducts();
+                showToast("Dish removed from menu");
+                renderQrCodesInAdmin(); // Regenerates the QRs immediately to reflect deletions!
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => { showToast("Link copied to clipboard!"); }).catch(() => { showToast("Failed to copy link", false); });
+        }
+
+        function initFallingFoodCanvas() {
+            const canvas = document.getElementById('falling-food-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            const foodEmojis = ["🍕", "🍔", "🍟", "🥟", "🥤", "☕", "🍦", "🍩"];
+            
+            function resizeCanvas() {
+                const parent = canvas.parentElement;
+                canvas.width = parent.clientWidth; canvas.height = parent.clientHeight;
+            }
+            window.addEventListener('resize', resizeCanvas); resizeCanvas();
+
+            const maxParticles = Math.min(55, Math.floor(canvas.width / 20)); 
+            for (let i = 0; i < maxParticles; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height,
+                    char: foodEmojis[Math.floor(Math.random() * foodEmojis.length)],
+                    size: Math.random() * 26 + 18, speedY: Math.random() * 1.0 + 0.4, speedX: Math.random() * 0.4 - 0.2,
+                    rotation: Math.random() * Math.PI * 2, rotSpeed: (Math.random() * 0.02 - 0.01) 
+                });
+            }
+
+            function drawFrame() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.shadowBlur = 4; ctx.shadowColor = "rgba(197, 168, 128, 0.4)";
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i]; p.y += p.speedY; p.x += p.speedX; p.rotation += p.rotSpeed;
+                    if (p.y > canvas.height + 40) { p.y = -50; p.x = Math.random() * canvas.width; p.char = foodEmojis[Math.floor(Math.random() * foodEmojis.length)]; p.speedY = Math.random() * 1.0 + 0.4; }
+                    if (p.x < -40) p.x = canvas.width + 20; if (p.x > canvas.width + 40) p.x = -20;
+                    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rotation); ctx.font = `${p.size}px serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.globalAlpha = 0.35; 
+                    ctx.fillText(p.char, 0, 0);
+                    ctx.restore();
+                }
+                requestAnimationFrame(drawFrame);
+            }
+            drawFrame();
+        }
+
+        function registerPWA() {
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    const swCode = `
+                        const CACHE_NAME = 'amshi-cafe-cache-v1';
+                        const ASSETS = ['/', 'https://cdn.tailwindcss.com', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', 'https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js'];
+                        self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))); });
+                        self.addEventListener('fetch', (e) => { e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request))); });
+                    `;
+                    const blob = new Blob([swCode], { type: 'application/javascript' });
+                    const swUrl = URL.createObjectURL(blob);
+                    navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration skipped', err));
+                });
+            }
+        }
+    </script>
+</body>
+</html>
